@@ -27,12 +27,12 @@
  
  static const uint timer_estourou = 50;
  
- int64_t alarme(alarm_id_t id, void *user_data) {
+ int64_t alarme_sensor(alarm_id_t id, void *user_data) {
      if (sensor_state.subida) {
-         datetime_t now;
-         rtc_get_datetime(&now);
+         datetime_t actual;
+         rtc_get_datetime(&actual);
 
-         printf("%02d:%02d:%02d - Falha\n", now.hour, now.min, now.sec);
+         printf("%02d:%02d:%02d - Falhou\n", actual.hour, actual.min, actual.sec);
          sensor_state.subida = false;
      }
      return 0; 
@@ -90,6 +90,7 @@
              }
          }
          
+
          if (sensor) {
 
             gpio_put(TRIGGER_PIN, 1);
@@ -97,18 +98,18 @@
              gpio_put(TRIGGER_PIN, 0);
              
              sensor_state.subida = true;
-             sensor_state.alarm_id = add_alarm_in_ms(timer_estourou, alarme, NULL, false);
+             sensor_state.alarm_id = add_alarm_in_ms(timer_estourou, alarme_sensor, NULL, false);
          
              if (sensor_state.descida == 1) {
                  sensor_state.descida = 0;
                  int delta_t = absolute_time_diff_us(sensor_state.start, sensor_state.finish);
                  double distancia = (delta_t * 0.0343) / 2.0;
-                 datetime_t t2 = {0};
-                 rtc_get_datetime(&t2);
+                 datetime_t t_2 = {0};
+                 rtc_get_datetime(&t_2);
          
                  char datetime_buf[256];
                  char *datetime_str = datetime_buf;
-                 datetime_to_str(datetime_str, sizeof(datetime_buf), &t2);
+                 datetime_to_str(datetime_str, sizeof(datetime_buf), &t_2);
                  printf("%s - %.2f cm\n", datetime_str, distancia);
              }
          }
